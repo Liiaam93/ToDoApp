@@ -1,12 +1,29 @@
-import { View, Button, Text, Modal, SafeAreaView, ActivityIndicator, FlatList } from 'react-native';
-import InlineTextButton from '../components/InlineTextButton';
-import AppStyles from '../styles/AppStyles';
+import {
+  View,
+  Button,
+  Text,
+  Modal,
+  SafeAreaView,
+  ActivityIndicator,
+  FlatList,
+} from "react-native";
+import InlineTextButton from "../components/InlineTextButton";
+import AppStyles from "../styles/AppStyles";
 import { auth, db } from "../firebase";
-import { collection, addDoc, query, where, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore"; 
-import { sendEmailVerification } from 'firebase/auth';
-import React from 'react';
-import AddToDoModal from '../components/AddToDoModal';
-import BouncyCheckbox from 'react-native-bouncy-checkbox';
+import {
+  collection,
+  addDoc,
+  query,
+  where,
+  getDocs,
+  deleteDoc,
+  doc,
+  setDoc,
+} from "firebase/firestore";
+import { sendEmailVerification } from "firebase/auth";
+import React from "react";
+import AddToDoModal from "../components/AddToDoModal";
+import BouncyCheckbox from "react-native-bouncy-checkbox";
 
 export default function ToDo({ navigation }) {
   let [modalVisible, setModalVisible] = React.useState(false);
@@ -15,7 +32,10 @@ export default function ToDo({ navigation }) {
   let [toDos, setToDos] = React.useState([]);
 
   let loadToDoList = async () => {
-    const q = query(collection(db, "todos"), where("userId", "==", auth.currentUser.uid));
+    const q = query(
+      collection(db, "todos"),
+      where("userId", "==", auth.currentUser.uid)
+    );
 
     const querySnapshot = await getDocs(q);
     let toDos = [];
@@ -35,7 +55,7 @@ export default function ToDo({ navigation }) {
   }
 
   let checkToDoItem = (item, isChecked) => {
-    const toDoRef = doc(db, 'todos', item.id);
+    const toDoRef = doc(db, "todos", item.id);
     setDoc(toDoRef, { completed: isChecked }, { merge: true });
   };
 
@@ -45,9 +65,15 @@ export default function ToDo({ navigation }) {
     setToDos(updatedToDos);
   };
 
-  let renderToDoItem = ({item}) => {
+  let renderToDoItem = ({ item }) => {
     return (
-      <View style={[AppStyles.rowContainer, AppStyles.rightMargin, AppStyles.leftMargin]}>
+      <View
+        style={[
+          AppStyles.rowContainer,
+          AppStyles.rightMargin,
+          AppStyles.leftMargin,
+        ]}
+      >
         <View style={AppStyles.fillSpace}>
           <BouncyCheckbox
             isChecked={item.complated}
@@ -56,13 +82,19 @@ export default function ToDo({ navigation }) {
             unfillColor="#FFFFFF"
             text={item.text}
             iconStyle={{ borderColor: "#258ea6" }}
-            onPress={(isChecked) => { checkToDoItem(item, isChecked)}}
+            onPress={(isChecked) => {
+              checkToDoItem(item, isChecked);
+            }}
           />
         </View>
-        <InlineTextButton text="Delete" color="#258ea6" onPress={() => deleteToDo(item.id)} />
+        <InlineTextButton
+          text="Delete"
+          color="#258ea6"
+          onPress={() => deleteToDo(item.id)}
+        />
       </View>
     );
-  }
+  };
 
   let showToDoList = () => {
     return (
@@ -74,18 +106,20 @@ export default function ToDo({ navigation }) {
           setIsRefreshing(true);
         }}
         renderItem={renderToDoItem}
-        keyExtractor={item => item.id} />
-    )
+        keyExtractor={(item) => item.id}
+      />
+    );
   };
 
   let showContent = () => {
     return (
       <View>
-        {isLoading ? <ActivityIndicator size="large" /> : showToDoList() }
-        <Button 
-          title="Add ToDo" 
-          onPress={() => setModalVisible(true)} 
-          color="#fb4d3d" />
+        {isLoading ? <ActivityIndicator size="large" /> : showToDoList()}
+        <Button
+          title="Add ToDo"
+          onPress={() => setModalVisible(true)}
+          color="#fb4d3d"
+        />
       </View>
     );
   };
@@ -94,7 +128,10 @@ export default function ToDo({ navigation }) {
     return (
       <View>
         <Text>Please verify your email to use ToDo</Text>
-        <Button title="Send Verification Email" onPress={() => sendEmailVerification(auth.currentUser)} />
+        <Button
+          title="Send Verification Email"
+          onPress={() => sendEmailVerification(auth.currentUser)}
+        />
       </View>
     );
   };
@@ -103,7 +140,7 @@ export default function ToDo({ navigation }) {
     let toDoToSave = {
       text: todo,
       completed: false,
-      userId: auth.currentUser.uid
+      userId: auth.currentUser.uid,
     };
     const docRef = await addDoc(collection(db, "todos"), toDoToSave);
 
@@ -114,23 +151,38 @@ export default function ToDo({ navigation }) {
 
     setToDos(updatedToDos);
   };
-  
+
   return (
     <SafeAreaView>
-      <View style={[AppStyles.rowContainer, AppStyles.rightAligned, AppStyles.rightMargin, AppStyles.topMargin]}>
-        <InlineTextButton text="Manage Account" color="#258ea6" onPress={() => navigation.navigate("ManageAccount")}/>
+      <View
+        style={[
+          AppStyles.rowContainer,
+          AppStyles.rightAligned,
+          AppStyles.rightMargin,
+          AppStyles.topMargin,
+        ]}
+      >
+        <InlineTextButton
+          text="Manage Account"
+          color="#258ea6"
+          onPress={() => navigation.navigate("ManageAccount")}
+        />
       </View>
       <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}>
-        <AddToDoModal 
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <AddToDoModal
           onClose={() => setModalVisible(false)}
-          addToDo={addToDo} />
+          addToDo={addToDo}
+        />
       </Modal>
       <Text style={AppStyles.header}>ToDo</Text>
-      {auth.currentUser.emailVerified ? showContent() : showSendVerificationEmail()}
+      {auth.currentUser.emailVerified
+        ? showContent()
+        : showSendVerificationEmail()}
     </SafeAreaView>
-  )
+  );
 }
